@@ -1,0 +1,167 @@
+# ══════════════════════════════════════════════════════════════════════════════
+# Home Lab — Core Stack
+# Server:   ubuntu-server@192.168.1.10
+# Location: /opt/homelab/core/docker-compose.yml
+#
+# Services: Pi-hole | Unbound | Portainer | Nginx Proxy Manager
+#
+# Future stacks (separate compose files):
+#   /opt/homelab/security/    ← WireGuard, CrowdSec, Authelia
+#   /opt/homelab/monitoring/  ← Grafana, Prometheus, Uptime Kuma
+#   /opt/homelab/apps/        ← Vaultwarden, Gitea, Nextcloud
+#   /opt/homelab/lab/         ← Juice Shop, DVWA (isolated, run on demand)
+#
+# Usage:
+#   cd /opt/homelab/core
+#   docker compose up -d                 # Start everything
+#   docker compose logs -f               # Watch logs
+#   docker compose down                  # Stop (data preserved in volumes)
+# ══════════════════════════════════════════════════════════════════════════════
+
+# IMPORTANT: 'name' locks the Compose project name to 'homelab' regardless of
+# which directory this file lives in. Without this, Docker would derive the
+# project name from the folder name ('core'), creating new empty volumes
+# instead of connecting to your existing homelab_pihole_data etc.
+name: homelab
+
+# ── NETWORKS ──────────────────────────────────────────────────────────────────
+networks:
+  homelab:
+    driver: bridge
+    ipam:
+      config:
+        - subnet: 172.20.0.0/24
+
+# ── VOLUMES ───────────────────────────────────────────────────────────────────
+# Actual names on disk: homelab_pihole_data, homelab_pihole_dnsmasq, homelab_portainer_data
+#                        homelab_npm_data, homelab_npm_letsencrypt
+volumes:
+  pihole_data:        # Pi-hole config, blocklists, gravity database
+  pihole_dnsmasq:     # dnsmasq config files (DHCP leases, custom DNS entries)
+  portainer_data:     # Portainer users, stacks, settings
+  npm_data:           # NPM database, proxy host configs, settings
+  npm_letsencrypt:    # SSL certificates (self-signed or Let's Encrypt)
+
+# ══════════════════════════════════════════════════════════════════════════════
+services:
+
+  # ─────────────────────────────────────────────────────────────────────────
+  # UNBOUND — Recursive DNS Resolver
+  # Query flow: client → Pi-hole:53 → Unbound:5335 → root servers → answer
+  # Bound to 127.0.0.1 only — never expose this externally.
+  # ─────────────────────────────────────────────────────────────────────────
+  unbound:
+    image: mvance/unbound:latest
+    container_name: unbound
+    restart: unless-stopped
+    ports:
+      - "127.0.0.1:5335:53/tcp"
+      - "127.0.0.1:5335:53/udp"
+    volumes:
+      - ./unbound/unbound.conf:/opt/unbound/etc/unbound/unbound.conf:ro
+    networks:
+      - homelab
+    logging:
+      driver: "json-file"
+      options:
+        max-size: "5m"
+        max-file: "3"
+
+  # ─────────────────────────────────────────────────────────────────────────
+  # PI-HOLE — DNS Sinkhole + Ad Blocker + DHCP Server
+  # network_mode: host is required for DHCP broadcast packets.
+  # With host networking, 'ports:' is ignored — Pi-hole binds directly
+  # to host ports 53, 67, and 80.
+  # ─────────────────────────────────────────────────────────────────────────
+  pihole:
+    image: pihole/pihole:latest
+    container_name: pihole
+    network_mode: host
+    restart: unless-stopped
+    depends_on:
+      - unbound
+    environment:
+      TZ: ${TZ:-America/New_York}
+      WEBPASSWORD: ${PIHOLE_WEBPASSWORD}
+      FTLCONF_webserver_api_password: ${PIHOLE_WEBPASSWORD}
+      FTLCONF_LOCAL_IPV4: '192.168.1.10'
+      PIHOLE_DNS_: '127.0.0.1#5335'
+      DNSMASQ_LISTENING: 'all'
+      DHCP_ACTIVE: 'true'
+      DHCP_START: '192.168.1.64'
+      DHCP_END: '192.168.1.253'
+      DHCP_ROUTER: '192.168.1.254'
+      DHCP_LEASETIME: '24'
+      DHCP_IPv6: 'false'
+      FTLCONF_webserver_port: '80o,8443os,[::]:80o,[::]:8443os'
+    volumes:
+      - pihole_data:/etc/pihole
+      - pihole_dnsmasq:/etc/dnsmasq.d
+    cap_add:
+      - NET_ADMIN
+    logging:
+      driver: "json-file"
+      options:
+        max-size: "10m"
+        max-file: "3"
+
+  # ─────────────────────────────────────────────────────────────────────────
+  # PORTAINER — Docker Management UI
+  # Access: https://192.168.1.10:9443
+  # FIXED: ports bound to 192.168.1.10 (LAN only), not 0.0.0.0.
+  # Never port-forward 9000 or 9443 from your router.
+  # ─────────────────────────────────────────────────────────────────────────
+  portainer:
+    image: portainer/portainer-ce:latest
+    container_name: portainer
+    restart: unless-stopped
+    ports:
+      - "192.168.1.10:9000:9000"
+      - "192.168.1.10:9443:9443"
+    volumes:
+      - /var/run/docker.sock:/var/run/docker.sock
+      - portainer_data:/data
+    networks:
+      - homelab
+    logging:
+      driver: "json-file"
+      options:
+        max-size: "5m"
+        max-file: "3"
+
+  # ─────────────────────────────────────────────────────────────────────────
+  # NGINX PROXY MANAGER — Reverse Proxy + SSL Termination
+  #
+  # NPM sits in front of your internal services and handles HTTPS for all of
+  # them. Instead of accessing Portainer at https://192.168.1.10:9443 with a
+  # self-signed cert warning, you access it at https://portainer.lan with a
+  # clean cert managed by NPM.
+  #
+  # Admin UI:  http://192.168.1.10:81   (first login: admin@example.com / changeme)
+  # HTTPS:     https://192.168.1.10:443 (where proxied services are served)
+  #
+  # Why no port 80?
+  #   Pi-hole (network_mode: host) already owns port 80 on this machine for
+  #   its admin interface and DNS block pages. Port 80 cannot be shared.
+  #   NPM runs HTTPS-only. Type https:// explicitly when accessing proxied services.
+  #
+  # SECURITY — Change the default admin credentials immediately on first login.
+  # Never port-forward port 81 from your router — admin UI is LAN-only.
+  # ─────────────────────────────────────────────────────────────────────────
+  nginx-proxy-manager:
+    image: jc21/nginx-proxy-manager:latest
+    container_name: nginx-proxy-manager
+    restart: unless-stopped
+    ports:
+      - "192.168.1.10:443:443"
+      - "192.168.1.10:81:81"
+    volumes:
+      - npm_data:/data
+      - npm_letsencrypt:/etc/letsencrypt
+    networks:
+      - homelab
+    logging:
+      driver: "json-file"
+      options:
+        max-size: "10m"
+        max-file: "3"

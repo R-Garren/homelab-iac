@@ -1,0 +1,1425 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="theme-color" content="#1e293b">
+<title>Sec+ SY0-701 Acronym Flashcards</title>
+<style>
+  /* ── Reset & base ── */
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+  :root {
+    --bg: #0f172a;
+    --surface: #1e293b;
+    --surface2: #334155;
+    --border: #475569;
+    --accent: #38bdf8;
+    --accent2: #818cf8;
+    --green: #34d399;
+    --yellow: #fbbf24;
+    --red: #f87171;
+    --text: #f1f5f9;
+    --muted: #94a3b8;
+    --radius: 12px;
+    --shadow: 0 4px 24px rgba(0,0,0,.5);
+  }
+  html { font-size: 16px; }
+  body {
+    background: var(--bg);
+    color: var(--text);
+    font-family: system-ui, -apple-system, sans-serif;
+    min-height: 100dvh;
+    display: flex;
+    flex-direction: column;
+  }
+
+  /* ── Header ── */
+  header {
+    background: var(--surface);
+    border-bottom: 1px solid var(--border);
+    padding: .75rem 1rem;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: .5rem;
+    flex-wrap: wrap;
+    position: sticky;
+    top: 0;
+    z-index: 100;
+  }
+  header h1 {
+    font-size: 1.1rem;
+    font-weight: 700;
+    color: var(--accent);
+    white-space: nowrap;
+  }
+  header h1 span { color: var(--text); font-weight: 400; }
+
+  /* ── Nav tabs ── */
+  .tabs {
+    display: flex;
+    gap: .25rem;
+    background: var(--bg);
+    border-radius: 8px;
+    padding: 3px;
+  }
+  .tab-btn {
+    background: none;
+    border: none;
+    color: var(--muted);
+    padding: .4rem .85rem;
+    border-radius: 6px;
+    cursor: pointer;
+    font-size: .85rem;
+    font-weight: 600;
+    transition: background .15s, color .15s;
+  }
+  .tab-btn.active { background: var(--accent); color: #0f172a; }
+  .tab-btn:hover:not(.active) { background: var(--surface2); color: var(--text); }
+
+  /* ── Search bar ── */
+  .search-wrap {
+    position: relative;
+    flex: 1;
+    min-width: 160px;
+    max-width: 320px;
+  }
+  .search-wrap svg {
+    position: absolute;
+    left: .6rem;
+    top: 50%;
+    transform: translateY(-50%);
+    color: var(--muted);
+    pointer-events: none;
+  }
+  #search-input {
+    width: 100%;
+    background: var(--bg);
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    color: var(--text);
+    padding: .45rem .75rem .45rem 2rem;
+    font-size: .85rem;
+    outline: none;
+    transition: border-color .15s;
+  }
+  #search-input:focus { border-color: var(--accent); }
+  #search-input::placeholder { color: var(--muted); }
+
+  /* ── Main layout ── */
+  main { flex: 1; padding: 1.25rem 1rem; max-width: 900px; width: 100%; margin: 0 auto; }
+
+  /* ── Views ── */
+  .view { display: none; }
+  .view.active { display: block; }
+
+  /* ══════════════ BROWSE VIEW ══════════════ */
+  .filter-bar {
+    display: flex;
+    gap: .5rem;
+    margin-bottom: 1rem;
+    flex-wrap: wrap;
+    align-items: center;
+  }
+  .filter-btn {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 20px;
+    color: var(--muted);
+    padding: .3rem .85rem;
+    font-size: .8rem;
+    cursor: pointer;
+    transition: all .15s;
+  }
+  .filter-btn.active { background: var(--accent2); border-color: var(--accent2); color: #fff; }
+  .filter-btn:hover:not(.active) { border-color: var(--text); color: var(--text); }
+  .count-badge {
+    margin-left: auto;
+    font-size: .8rem;
+    color: var(--muted);
+    white-space: nowrap;
+  }
+
+  .acronym-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
+    gap: .75rem;
+  }
+  .acronym-card {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    padding: .9rem 1rem;
+    display: flex;
+    flex-direction: column;
+    gap: .3rem;
+    cursor: default;
+    transition: border-color .15s;
+  }
+  .acronym-card:hover { border-color: var(--accent); }
+  .card-top {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    gap: .5rem;
+  }
+  .acronym-label {
+    font-weight: 800;
+    font-size: 1rem;
+    color: var(--accent);
+  }
+  .card-actions { display: flex; gap: .3rem; }
+  .status-btn {
+    background: none;
+    border: none;
+    cursor: pointer;
+    font-size: 1rem;
+    line-height: 1;
+    padding: 2px 4px;
+    border-radius: 4px;
+    transition: background .1s;
+  }
+  .status-btn:hover { background: var(--surface2); }
+  .full-term { font-size: .9rem; color: var(--text); font-weight: 600; }
+  .definition { font-size: .8rem; color: var(--muted); line-height: 1.45; }
+  .status-tag {
+    display: inline-block;
+    font-size: .7rem;
+    padding: 1px 6px;
+    border-radius: 10px;
+    font-weight: 600;
+    margin-top: .2rem;
+    width: fit-content;
+  }
+  .status-tag.known { background: rgba(52,211,153,.15); color: var(--green); }
+  .status-tag.learning { background: rgba(251,191,36,.15); color: var(--yellow); }
+
+  .no-results {
+    text-align: center;
+    color: var(--muted);
+    padding: 3rem 1rem;
+    font-size: .95rem;
+  }
+
+  /* ══════════════ FLASHCARD VIEW ══════════════ */
+  .fc-controls {
+    display: flex;
+    gap: .5rem;
+    margin-bottom: 1.25rem;
+    flex-wrap: wrap;
+    align-items: center;
+  }
+  .btn {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    color: var(--text);
+    padding: .45rem 1rem;
+    font-size: .85rem;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all .15s;
+  }
+  .btn:hover { background: var(--surface2); border-color: var(--text); }
+  .btn.primary { background: var(--accent); border-color: var(--accent); color: #0f172a; }
+  .btn.primary:hover { filter: brightness(1.1); }
+  .btn.danger { background: var(--red); border-color: var(--red); color: #0f172a; }
+
+  .fc-progress {
+    margin-left: auto;
+    font-size: .8rem;
+    color: var(--muted);
+    white-space: nowrap;
+  }
+
+  .fc-scene {
+    perspective: 1000px;
+    width: 100%;
+    max-width: 560px;
+    margin: 0 auto 1.5rem;
+    aspect-ratio: 16/9;
+    cursor: pointer;
+  }
+  .fc-inner {
+    position: relative;
+    width: 100%;
+    height: 100%;
+    transform-style: preserve-3d;
+    transition: transform .45s cubic-bezier(.4,0,.2,1);
+  }
+  .fc-inner.flipped { transform: rotateY(180deg); }
+  .fc-face {
+    position: absolute;
+    inset: 0;
+    backface-visibility: hidden;
+    border-radius: var(--radius);
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    padding: 1.5rem;
+    text-align: center;
+    box-shadow: var(--shadow);
+    user-select: none;
+  }
+  .fc-front {
+    background: linear-gradient(135deg, #1e3a5f 0%, #1e293b 100%);
+    border: 1px solid var(--accent);
+  }
+  .fc-back {
+    background: linear-gradient(135deg, #1a3a2a 0%, #1e293b 100%);
+    border: 1px solid var(--green);
+    transform: rotateY(180deg);
+  }
+  .fc-acronym-big {
+    font-size: clamp(2rem, 8vw, 3.5rem);
+    font-weight: 900;
+    color: var(--accent);
+    letter-spacing: .04em;
+    margin-bottom: .5rem;
+  }
+  .fc-hint { font-size: .8rem; color: var(--muted); }
+  .fc-fullterm {
+    font-size: clamp(1rem, 3.5vw, 1.4rem);
+    font-weight: 700;
+    color: var(--green);
+    margin-bottom: .6rem;
+  }
+  .fc-def {
+    font-size: clamp(.75rem, 2.5vw, .95rem);
+    color: var(--muted);
+    line-height: 1.5;
+    max-width: 420px;
+  }
+  .fc-status-indicator {
+    margin-top: .8rem;
+    font-size: .75rem;
+    color: var(--muted);
+  }
+
+  .fc-nav {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 1rem;
+    margin-bottom: 1.25rem;
+  }
+  .fc-nav .btn { padding: .45rem 1.25rem; }
+  .fc-counter {
+    min-width: 80px;
+    text-align: center;
+    font-size: .85rem;
+    color: var(--muted);
+  }
+
+  .fc-mark-row {
+    display: flex;
+    gap: .5rem;
+    justify-content: center;
+    flex-wrap: wrap;
+  }
+
+  /* ══════════════ QUIZ VIEW ══════════════ */
+  .quiz-setup {
+    max-width: 480px;
+    margin: 2rem auto;
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    padding: 1.75rem;
+    display: flex;
+    flex-direction: column;
+    gap: 1rem;
+  }
+  .quiz-setup h2 { font-size: 1.2rem; }
+  .quiz-setup p { font-size: .9rem; color: var(--muted); line-height: 1.5; }
+  .option-group { display: flex; flex-direction: column; gap: .5rem; }
+  .option-group label { font-size: .85rem; color: var(--muted); font-weight: 600; }
+  .option-row { display: flex; gap: .5rem; flex-wrap: wrap; }
+  .opt-btn {
+    background: var(--bg);
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    color: var(--muted);
+    padding: .4rem .9rem;
+    font-size: .85rem;
+    cursor: pointer;
+    transition: all .15s;
+  }
+  .opt-btn.sel { background: var(--accent2); border-color: var(--accent2); color: #fff; }
+
+  .quiz-area { max-width: 600px; margin: 0 auto; }
+  .quiz-hud {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 1rem;
+    font-size: .85rem;
+    color: var(--muted);
+    flex-wrap: wrap;
+    gap: .5rem;
+  }
+  .quiz-score-display {
+    display: flex;
+    gap: 1rem;
+  }
+  .quiz-score-display span { font-weight: 700; }
+  .correct-color { color: var(--green); }
+  .wrong-color { color: var(--red); }
+
+  .quiz-card {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    padding: 1.5rem;
+    margin-bottom: 1rem;
+    box-shadow: var(--shadow);
+  }
+  .quiz-question {
+    font-size: clamp(1.4rem, 6vw, 2.2rem);
+    font-weight: 900;
+    color: var(--accent);
+    text-align: center;
+    margin-bottom: 1.25rem;
+    letter-spacing: .04em;
+  }
+  .quiz-subtext {
+    font-size: .8rem;
+    color: var(--muted);
+    text-align: center;
+    margin-bottom: 1.25rem;
+  }
+
+  /* Multiple choice */
+  .choices { display: flex; flex-direction: column; gap: .6rem; }
+  .choice-btn {
+    background: var(--bg);
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    color: var(--text);
+    padding: .75rem 1rem;
+    font-size: .9rem;
+    text-align: left;
+    cursor: pointer;
+    transition: all .15s;
+    line-height: 1.35;
+  }
+  .choice-btn:hover:not(:disabled) { border-color: var(--accent); background: rgba(56,189,248,.07); }
+  .choice-btn.correct { background: rgba(52,211,153,.15); border-color: var(--green); color: var(--green); }
+  .choice-btn.wrong { background: rgba(248,113,113,.12); border-color: var(--red); color: var(--red); }
+  .choice-btn:disabled { cursor: default; }
+
+  /* Type answer */
+  .type-wrap { display: flex; flex-direction: column; gap: .75rem; }
+  #type-answer {
+    background: var(--bg);
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    color: var(--text);
+    padding: .75rem 1rem;
+    font-size: .95rem;
+    outline: none;
+    transition: border-color .15s;
+    width: 100%;
+  }
+  #type-answer:focus { border-color: var(--accent); }
+  .type-feedback {
+    font-size: .85rem;
+    padding: .6rem .9rem;
+    border-radius: 8px;
+    display: none;
+    line-height: 1.45;
+  }
+  .type-feedback.show { display: block; }
+  .type-feedback.correct { background: rgba(52,211,153,.12); color: var(--green); }
+  .type-feedback.wrong { background: rgba(248,113,113,.1); color: var(--red); }
+
+  .quiz-next-row { display: flex; justify-content: center; margin-top: .5rem; }
+
+  .quiz-result {
+    max-width: 480px;
+    margin: 2rem auto;
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    padding: 2rem;
+    text-align: center;
+    display: flex;
+    flex-direction: column;
+    gap: 1rem;
+    align-items: center;
+  }
+  .result-emoji { font-size: 3rem; }
+  .result-score { font-size: 2rem; font-weight: 900; color: var(--accent); }
+  .result-sub { font-size: .9rem; color: var(--muted); }
+  .result-actions { display: flex; gap: .5rem; flex-wrap: wrap; justify-content: center; }
+
+  /* ── Scrollbar ── */
+  ::-webkit-scrollbar { width: 6px; }
+  ::-webkit-scrollbar-track { background: var(--bg); }
+  ::-webkit-scrollbar-thumb { background: var(--border); border-radius: 3px; }
+
+  /* ── Mobile tweaks ── */
+  @media (max-width: 480px) {
+    header { flex-direction: column; align-items: stretch; }
+    .search-wrap { max-width: 100%; }
+    .tabs { justify-content: center; }
+    .fc-scene { aspect-ratio: 4/3; }
+    .acronym-grid { grid-template-columns: 1fr; }
+  }
+</style>
+</head>
+<body>
+
+<header>
+  <h1>Sec+ <span>SY0-701</span></h1>
+  <nav class="tabs">
+    <button class="tab-btn active" data-view="browse">Browse</button>
+    <button class="tab-btn" data-view="flashcard">Flashcards</button>
+    <button class="tab-btn" data-view="quiz">Quiz</button>
+  </nav>
+  <div class="search-wrap">
+    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+    <input id="search-input" type="search" placeholder="Search acronyms…" autocomplete="off" spellcheck="false">
+  </div>
+</header>
+
+<main>
+
+  <!-- ══ BROWSE ══ -->
+  <section id="view-browse" class="view active">
+    <div class="filter-bar">
+      <button class="filter-btn active" data-filter="all">All</button>
+      <button class="filter-btn" data-filter="known">✅ Known</button>
+      <button class="filter-btn" data-filter="learning">🔄 Learning</button>
+      <button class="filter-btn" data-filter="unseen">⬜ Unseen</button>
+      <span class="count-badge" id="browse-count"></span>
+    </div>
+    <div class="acronym-grid" id="acronym-grid"></div>
+    <div class="no-results" id="no-results" style="display:none">No acronyms match your search.</div>
+  </section>
+
+  <!-- ══ FLASHCARDS ══ -->
+  <section id="view-flashcard" class="view">
+    <div class="fc-controls">
+      <button class="btn" id="fc-shuffle-btn">🔀 Shuffle</button>
+      <button class="btn" id="fc-filter-known">Hide Known</button>
+      <button class="btn" id="fc-reset-btn">Reset Deck</button>
+      <button class="btn" id="fc-side-btn" title="Toggle which side is shown first">🔁 Acronym first</button>
+      <span class="fc-progress" id="fc-progress"></span>
+    </div>
+    <div class="fc-scene" id="fc-scene" role="button" aria-label="Flip card" tabindex="0">
+      <div class="fc-inner" id="fc-inner">
+        <div class="fc-face fc-front" id="fc-front">
+          <div id="fc-front-content"></div>
+        </div>
+        <div class="fc-face fc-back" id="fc-back">
+          <div id="fc-back-content"></div>
+        </div>
+      </div>
+    </div>
+    <div class="fc-nav">
+      <button class="btn" id="fc-prev">◀ Prev</button>
+      <span class="fc-counter" id="fc-counter">1 / —</span>
+      <button class="btn primary" id="fc-next">Next ▶</button>
+    </div>
+    <div class="fc-mark-row">
+      <button class="btn" id="fc-mark-known">✅ Mark Known</button>
+      <button class="btn" id="fc-mark-learning">🔄 Still Learning</button>
+    </div>
+  </section>
+
+  <!-- ══ QUIZ ══ -->
+  <section id="view-quiz" class="view">
+
+    <div id="quiz-setup-panel" class="quiz-setup">
+      <h2>Quiz Mode</h2>
+      <p>Test yourself on the SY0-701 acronyms. Choose your options and start when ready.</p>
+      <div class="option-group">
+        <label>Question type</label>
+        <div class="option-row">
+          <button class="opt-btn sel" data-opt="qtype" data-val="mc">Multiple Choice</button>
+          <button class="opt-btn" data-opt="qtype" data-val="type">Type Answer</button>
+        </div>
+      </div>
+      <div class="option-group">
+        <label>Direction</label>
+        <div class="option-row">
+          <button class="opt-btn sel" data-opt="qdir" data-val="acronym-to-def">Acronym → Definition</button>
+          <button class="opt-btn" data-opt="qdir" data-val="def-to-acronym">Definition → Acronym</button>
+        </div>
+      </div>
+      <div class="option-group">
+        <label>Question count</label>
+        <div class="option-row">
+          <button class="opt-btn" data-opt="qcount" data-val="10">10</button>
+          <button class="opt-btn sel" data-opt="qcount" data-val="25">25</button>
+          <button class="opt-btn" data-opt="qcount" data-val="50">50</button>
+          <button class="opt-btn" data-opt="qcount" data-val="all">All</button>
+        </div>
+      </div>
+      <div class="option-group">
+        <label>Pool</label>
+        <div class="option-row">
+          <button class="opt-btn sel" data-opt="pool" data-val="all">All acronyms</button>
+          <button class="opt-btn" data-opt="pool" data-val="learning">Learning only</button>
+        </div>
+      </div>
+      <button class="btn primary" id="start-quiz-btn" style="margin-top:.5rem">Start Quiz ▶</button>
+    </div>
+
+    <div id="quiz-active-panel" class="quiz-area" style="display:none">
+      <div class="quiz-hud">
+        <span id="quiz-progress-label">Question 1 / 25</span>
+        <div class="quiz-score-display">
+          <span class="correct-color" id="quiz-correct-count">✅ 0</span>
+          <span class="wrong-color" id="quiz-wrong-count">❌ 0</span>
+        </div>
+        <button class="btn" id="quiz-quit-btn" style="padding:.3rem .7rem;font-size:.78rem">Quit</button>
+      </div>
+      <div class="quiz-card">
+        <div class="quiz-question" id="quiz-question">AAA</div>
+        <div class="quiz-subtext" id="quiz-subtext"></div>
+        <!-- MC choices injected here -->
+        <div class="choices" id="mc-choices" style="display:none"></div>
+        <!-- Type answer injected here -->
+        <div class="type-wrap" id="type-wrap" style="display:none">
+          <input id="type-answer" type="text" placeholder="Type the full term…" autocomplete="off" spellcheck="false">
+          <div class="type-feedback" id="type-feedback"></div>
+          <button class="btn primary" id="type-submit-btn">Submit</button>
+        </div>
+      </div>
+      <div class="quiz-next-row" id="quiz-next-row" style="display:none">
+        <button class="btn primary" id="quiz-next-btn">Next →</button>
+      </div>
+    </div>
+
+    <div id="quiz-result-panel" class="quiz-result" style="display:none">
+      <div class="result-emoji" id="result-emoji">🎉</div>
+      <div class="result-score" id="result-score"></div>
+      <div class="result-sub" id="result-sub"></div>
+      <div class="result-actions">
+        <button class="btn primary" id="retry-same-btn">Retry Same</button>
+        <button class="btn" id="quiz-home-btn">New Quiz</button>
+      </div>
+    </div>
+
+  </section>
+
+</main>
+
+<script>
+'use strict';
+
+/* ═══════════════════════════════════════════
+   ACRONYM DATA  —  CompTIA Security+ SY0-701
+   ═══════════════════════════════════════════ */
+const ACRONYMS = [
+  { a:"AAA", t:"Authentication, Authorization, and Accounting", d:"A security framework that controls access to resources, enforces policies, and audits usage." },
+  { a:"ACL", t:"Access Control List", d:"A set of rules that define which users or systems are granted or denied access to objects." },
+  { a:"AES", t:"Advanced Encryption Standard", d:"A symmetric block cipher adopted by NIST in 2001, supporting 128, 192, and 256-bit key lengths." },
+  { a:"AH", t:"Authentication Header", d:"An IPSec protocol providing connectionless integrity and data origin authentication for IP packets." },
+  { a:"AI", t:"Artificial Intelligence", d:"Simulation of human intelligence processes by machines, especially computer systems." },
+  { a:"AIS", t:"Automated Indicator Sharing", d:"A CISA program enabling real-time exchange of cyber threat indicators between public and private sectors." },
+  { a:"ALE", t:"Annualized Loss Expectancy", d:"The expected monetary loss for an asset due to a risk over a one-year period; ALE = SLE × ARO." },
+  { a:"AP", t:"Access Point", d:"A networking hardware device that allows wireless devices to connect to a wired network using Wi-Fi." },
+  { a:"API", t:"Application Programming Interface", d:"A set of routines, protocols, and tools for building software applications that specify how components interact." },
+  { a:"APT", t:"Advanced Persistent Threat", d:"A stealthy, long-term cyberattack in which an intruder gains unauthorized access and remains undetected." },
+  { a:"ARO", t:"Annualized Rate of Occurrence", d:"The estimated frequency with which a threat is expected to occur within a single year." },
+  { a:"ARP", t:"Address Resolution Protocol", d:"A network protocol used to map an IP address to a physical (MAC) address on a local network." },
+  { a:"ASCII", t:"American Standard Code for Information Interchange", d:"A character encoding standard that represents text in computers and communications equipment." },
+  { a:"ASLR", t:"Address Space Layout Randomization", d:"A security technique that randomly arranges the address space positions of key data areas to prevent exploitation." },
+  { a:"ATT&CK", t:"Adversarial Tactics, Techniques, and Common Knowledge", d:"A MITRE knowledge base of adversary tactics and techniques based on real-world observations." },
+  { a:"AUP", t:"Acceptable Use Policy", d:"A policy that defines the constraints and practices a user must agree to in order to access a network or the Internet." },
+  { a:"AV", t:"Antivirus / Asset Value", d:"Software designed to detect and remove malicious software; also the monetary value assigned to an asset in risk calculations." },
+  { a:"B2B", t:"Business to Business", d:"Commerce transactions between businesses, such as between a manufacturer and a wholesaler." },
+  { a:"BASH", t:"Bourne Again Shell", d:"A Unix shell and command language that is widely available on various operating systems." },
+  { a:"BCP", t:"Business Continuity Plan", d:"A plan to ensure that essential business functions continue during and after a disaster or disruption." },
+  { a:"BGP", t:"Border Gateway Protocol", d:"The routing protocol used to exchange routing information between autonomous systems on the Internet." },
+  { a:"BIOS", t:"Basic Input/Output System", d:"Firmware used to perform hardware initialization during the booting process of a computer." },
+  { a:"BPA", t:"Business Partnership Agreement", d:"A legal document that outlines rights and responsibilities when two businesses collaborate." },
+  { a:"BPDU", t:"Bridge Protocol Data Unit", d:"A data message transmitted across a local area network to detect loops in network topologies using STP." },
+  { a:"BYOD", t:"Bring Your Own Device", d:"A policy allowing employees to bring personally owned devices to work and use them to access company information." },
+  { a:"CA", t:"Certificate Authority", d:"An entity that issues digital certificates to verify the identity of entities on a network." },
+  { a:"CAC", t:"Common Access Card", d:"A US DoD smart card used as the standard identification for active-duty military and civilian employees." },
+  { a:"CAPTCHA", t:"Completely Automated Public Turing test to tell Computers and Humans Apart", d:"A challenge-response test used to determine whether the user is human." },
+  { a:"CASB", t:"Cloud Access Security Broker", d:"A security policy enforcement point between cloud service consumers and cloud service providers." },
+  { a:"CBC", t:"Cipher Block Chaining", d:"A block cipher mode of operation in which each block of plaintext is XORed with the previous ciphertext block." },
+  { a:"CCMP", t:"Counter Mode/CBC-MAC Protocol", d:"An encryption protocol for WPA2 using AES in counter mode for confidentiality and CBC-MAC for authentication." },
+  { a:"CCTV", t:"Closed-Circuit Television", d:"A TV system in which signals are not publicly distributed but monitored primarily for surveillance and security." },
+  { a:"CERT", t:"Computer Emergency Response Team", d:"An organization that handles computer security incidents and publishes alerts about new vulnerabilities." },
+  { a:"CFB", t:"Cipher Feedback", d:"A mode of operation for a block cipher that converts it into a self-synchronizing stream cipher." },
+  { a:"CHAP", t:"Challenge Handshake Authentication Protocol", d:"An authentication protocol that verifies the identity of a user using a three-way handshake." },
+  { a:"CIA", t:"Confidentiality, Integrity, and Availability", d:"The three core principles of information security: protecting data secrecy, accuracy, and accessibility." },
+  { a:"CIO", t:"Chief Information Officer", d:"A senior executive responsible for managing and implementing information and computer technologies." },
+  { a:"CIRT", t:"Computer Incident Response Team", d:"A group of IT professionals tasked with responding to and managing the aftermath of a security breach." },
+  { a:"CN", t:"Common Name", d:"An attribute within an X.509 certificate that typically identifies the host name associated with the certificate." },
+  { a:"COOP", t:"Continuity of Operations Plan", d:"A plan that ensures an organization can continue its essential functions during a wide range of emergencies." },
+  { a:"CRC", t:"Cyclical Redundancy Check", d:"An error-detecting code used to detect accidental changes to raw data in digital networks." },
+  { a:"CRL", t:"Certificate Revocation List", d:"A list maintained by a CA of certificates that have been revoked before their expiration date." },
+  { a:"CSO", t:"Chief Security Officer", d:"A senior executive responsible for the security of an organization's physical and digital assets." },
+  { a:"CSP", t:"Cloud Service Provider", d:"A company that offers network services, infrastructure, or business applications in the cloud." },
+  { a:"CSR", t:"Certificate Signing Request", d:"A message sent to a CA to apply for a digital identity certificate, containing the applicant's public key." },
+  { a:"CVE", t:"Common Vulnerabilities and Exposures", d:"A reference method for publicly known cybersecurity vulnerabilities and exposures." },
+  { a:"CVSS", t:"Common Vulnerability Scoring System", d:"A free and open industry standard for assessing the severity of computer system security vulnerabilities." },
+  { a:"DAC", t:"Discretionary Access Control", d:"An access control policy where the data owner decides who has access to specific resources." },
+  { a:"DBA", t:"Database Administrator", d:"A professional responsible for installing, configuring, upgrading, and maintaining database servers." },
+  { a:"DDoS", t:"Distributed Denial-of-Service", d:"A cyberattack in which multiple systems overwhelm the bandwidth or resources of a targeted system." },
+  { a:"DEP", t:"Data Execution Prevention", d:"A security feature that prevents code from being run from memory regions not explicitly designated as executable." },
+  { a:"DES", t:"Digital Encryption Standard", d:"A symmetric-key block cipher, now considered insecure due to its 56-bit key length." },
+  { a:"DFIR", t:"Digital Forensics and Incident Response", d:"The combined practice of investigating digital crimes and managing security incidents." },
+  { a:"DHCP", t:"Dynamic Host Configuration Protocol", d:"A network protocol that automatically assigns IP addresses and other configuration parameters to devices." },
+  { a:"DHE", t:"Diffie-Hellman Ephemeral", d:"A key exchange protocol variant that generates a unique key for each session, providing perfect forward secrecy." },
+  { a:"DLL", t:"Dynamic Link Library", d:"A shared library of functions in Windows that multiple programs can use simultaneously." },
+  { a:"DLP", t:"Data Loss Prevention", d:"A strategy and tools that ensure end users do not send sensitive or critical information outside the corporate network." },
+  { a:"DMZ", t:"Demilitarized Zone", d:"A network segment that separates an internal network from the external (untrusted) network, such as the Internet." },
+  { a:"DNAT", t:"Destination Network Address Translation", d:"A NAT technique that translates the destination IP address of incoming packets." },
+  { a:"DNS", t:"Domain Name System", d:"A hierarchical and decentralized naming system that translates domain names into IP addresses." },
+  { a:"DNSBL", t:"DNS Block List", d:"A mechanism for publishing IP addresses used by spammers or malicious actors, queried via DNS." },
+  { a:"DNSSEC", t:"DNS Security Extensions", d:"A suite of IETF specifications that adds cryptographic signatures to DNS data to prevent spoofing." },
+  { a:"DoS", t:"Denial-of-Service", d:"An attack intended to shut down a machine or network, making it inaccessible to its intended users." },
+  { a:"DRP", t:"Disaster Recovery Plan", d:"A documented process or set of procedures to recover and protect a business IT infrastructure in a disaster." },
+  { a:"DSA", t:"Digital Signature Algorithm", d:"A Federal Information Processing Standard for digital signatures based on discrete logarithm modular arithmetic." },
+  { a:"DSL", t:"Digital Subscriber Line", d:"A family of technologies providing Internet access by transmitting digital data over telephone lines." },
+  { a:"EAP", t:"Extensible Authentication Protocol", d:"An authentication framework frequently used in wireless networks and point-to-point connections." },
+  { a:"ECC", t:"Elliptic Curve Cryptography", d:"An approach to public-key cryptography based on the algebraic structure of elliptic curves over finite fields." },
+  { a:"EFS", t:"Encrypting File System", d:"A Windows file system feature that provides filesystem-level encryption to protect data on disk." },
+  { a:"EMI", t:"Electromagnetic Interference", d:"Disturbance generated by an external source that affects an electrical circuit by electromagnetic induction." },
+  { a:"ERP", t:"Enterprise Resource Planning", d:"Software systems that manage and integrate core business processes across an organization." },
+  { a:"ESN", t:"Electronic Serial Number", d:"A unique identification number embedded in a wireless device by the manufacturer." },
+  { a:"ESP", t:"Encapsulating Security Payload", d:"An IPSec protocol providing confidentiality, authentication, and integrity for IP packets." },
+  { a:"FACL", t:"File System Access Control List", d:"An access control list applied at the file system level to control file and directory permissions." },
+  { a:"FAR", t:"False Acceptance Rate", d:"The rate at which a biometric system incorrectly accepts unauthorized users." },
+  { a:"FDE", t:"Full Disk Encryption", d:"Encryption that protects all data on a disk by encrypting the entire disk volume." },
+  { a:"FIM", t:"File Integrity Monitoring", d:"A technology that monitors and detects changes in files to determine if unauthorized changes have been made." },
+  { a:"FPGA", t:"Field Programmable Gate Array", d:"An integrated circuit designed to be configured by a customer after manufacturing." },
+  { a:"FRR", t:"False Rejection Rate", d:"The rate at which a biometric system incorrectly rejects valid users." },
+  { a:"FTP", t:"File Transfer Protocol", d:"A standard network protocol used for the transfer of files between a client and server over a network." },
+  { a:"FTPS", t:"File Transfer Protocol Secure", d:"An extension of FTP that adds support for TLS encryption for data in transit." },
+  { a:"GRE", t:"Generic Routing Encapsulation", d:"A tunneling protocol that can encapsulate a wide variety of network layer protocols inside virtual point-to-point links." },
+  { a:"HA", t:"High Availability", d:"A characteristic of a system that aims to ensure an agreed level of operational performance and uptime." },
+  { a:"HDD", t:"Hard Disk Drive", d:"An electromechanical data storage device that uses magnetic storage to store and retrieve digital data." },
+  { a:"HIDS", t:"Host-based Intrusion Detection System", d:"An IDS that monitors and analyzes the internals of a computing system for suspicious activity." },
+  { a:"HIPS", t:"Host-based Intrusion Prevention System", d:"Security software that monitors a single host for suspicious activity and blocks malicious actions in real time." },
+  { a:"HMAC", t:"Hash-based Message Authentication Code", d:"A specific MAC involving a cryptographic hash function combined with a secret key for message authentication." },
+  { a:"HOTP", t:"HMAC-based One-Time Password", d:"A one-time password algorithm based on HMAC, used in authentication tokens." },
+  { a:"HSTS", t:"HTTP Strict Transport Security", d:"A web security policy mechanism that helps protect websites against man-in-the-middle attacks by forcing HTTPS." },
+  { a:"HTML", t:"Hypertext Markup Language", d:"The standard markup language for creating web pages and web applications." },
+  { a:"HTTP", t:"Hypertext Transfer Protocol", d:"An application-layer protocol for distributed, collaborative, hypermedia information systems on the Web." },
+  { a:"HTTPS", t:"Hypertext Transfer Protocol Secure", d:"HTTP over TLS/SSL, providing encrypted communication and secure identification of web servers." },
+  { a:"HVAC", t:"Heating, Ventilation, and Air Conditioning", d:"The technology for indoor environmental comfort, critical for data center physical security." },
+  { a:"IaaS", t:"Infrastructure as a Service", d:"A cloud computing model in which virtualized computing resources are provided over the Internet." },
+  { a:"ICMP", t:"Internet Control Message Protocol", d:"A supporting protocol used by network devices to send error messages and operational information." },
+  { a:"ICS", t:"Industrial Control System", d:"A control system used in industrial sectors including SCADA systems and DCS." },
+  { a:"ID", t:"Identification", d:"The process of claiming an identity, typically preceding authentication." },
+  { a:"IDS", t:"Intrusion Detection System", d:"Software or hardware that monitors networks or systems for malicious activity or policy violations." },
+  { a:"IEEE", t:"Institute of Electrical and Electronics Engineers", d:"A professional association for electronic engineering and electrical engineering that sets many networking standards." },
+  { a:"IKE", t:"Internet Key Exchange", d:"A protocol used to set up a security association in the IPSec protocol suite." },
+  { a:"IM", t:"Instant Messaging", d:"A type of online chat that offers real-time text transmission over the Internet." },
+  { a:"IMAP", t:"Internet Message Access Protocol", d:"An email retrieval protocol that allows accessing emails from a remote server." },
+  { a:"IoT", t:"Internet of Things", d:"The network of physical objects embedded with sensors, software, and connectivity to exchange data." },
+  { a:"IP", t:"Internet Protocol", d:"The principal communications protocol for relaying datagrams across network boundaries." },
+  { a:"IPS", t:"Intrusion Prevention System", d:"A network security device that monitors network traffic and can block suspicious or malicious traffic." },
+  { a:"IPSec", t:"Internet Protocol Security", d:"A secure network protocol suite that authenticates and encrypts packets in an IP network." },
+  { a:"IR", t:"Incident Response", d:"An organized approach to addressing and managing the aftermath of a security breach or attack." },
+  { a:"IRC", t:"Internet Relay Chat", d:"An application layer protocol that facilitates communication in the form of text via an IRC network." },
+  { a:"IRP", t:"Incident Response Plan", d:"A set of instructions to help IT staff detect, respond to, and recover from security incidents." },
+  { a:"IS", t:"Information Systems", d:"Integrated sets of components for collecting, storing, processing, and communicating data." },
+  { a:"ISA", t:"Interconnection Security Agreement", d:"An agreement that documents the security requirements and arrangements for a connection between two systems." },
+  { a:"ISP", t:"Internet Service Provider", d:"An organization that provides services for accessing, using, or participating in the Internet." },
+  { a:"ISSO", t:"Information Systems Security Officer", d:"A person responsible for ensuring appropriate operational security posture is maintained for an information system." },
+  { a:"IV", t:"Initialization Vector", d:"An arbitrary number used along with a secret key to initiate encryption, ensuring cipher uniqueness." },
+  { a:"KDC", t:"Key Distribution Center", d:"A network service that supplies session tickets and temporary session keys in Kerberos authentication." },
+  { a:"KEK", t:"Key Encryption Key", d:"A cryptographic key used to encrypt other keys, enabling secure key management." },
+  { a:"L2TP", t:"Layer 2 Tunneling Protocol", d:"A tunneling protocol used to support VPNs, often paired with IPSec for security." },
+  { a:"LAN", t:"Local Area Network", d:"A computer network that interconnects computers within a limited area such as an office or building." },
+  { a:"LDAP", t:"Lightweight Directory Access Protocol", d:"An open protocol for accessing and maintaining directory information services over an IP network." },
+  { a:"LEAP", t:"Lightweight Extensible Authentication Protocol", d:"A Cisco proprietary wireless LAN authentication method based on EAP." },
+  { a:"MAC", t:"Mandatory Access Control / Media Access Control / Message Authentication Code", d:"(1) Access control where the OS enforces policy; (2) unique hardware address of a network interface; (3) a code confirming a message's authenticity and integrity." },
+  { a:"MaaS", t:"Monitoring as a Service", d:"A cloud service model that provides monitoring capabilities for IT infrastructure." },
+  { a:"MAN", t:"Metropolitan Area Network", d:"A computer network covering a city-sized geographic area, larger than a LAN." },
+  { a:"MBR", t:"Master Boot Record", d:"A type of boot sector in the first block of a partitioned data storage device; a target of bootkits." },
+  { a:"MD5", t:"Message Digest 5", d:"A widely used cryptographic hash function producing a 128-bit hash value, now considered broken for security use." },
+  { a:"MDM", t:"Mobile Device Management", d:"Software that manages, monitors, and secures employees' mobile devices across an organization." },
+  { a:"MFA", t:"Multi-factor Authentication", d:"An authentication method requiring two or more verification factors to gain access to a resource." },
+  { a:"MFD", t:"Multi-function Device", d:"An office machine that incorporates multiple functions such as printing, scanning, and faxing." },
+  { a:"MITM", t:"Man-in-the-Middle", d:"An attack in which the attacker secretly relays and possibly alters communications between two parties." },
+  { a:"MOU", t:"Memorandum of Understanding", d:"A non-binding agreement describing an intended common line of action between two parties." },
+  { a:"MPLS", t:"Multiprotocol Label Switching", d:"A routing technique in telecommunications networks that directs data using short path labels rather than long network addresses." },
+  { a:"MSA", t:"Master Service Agreement", d:"A contract that establishes terms and conditions between parties for current and future projects." },
+  { a:"MSCHAP", t:"Microsoft Challenge Handshake Authentication Protocol", d:"A Microsoft version of CHAP used in Windows authentication." },
+  { a:"MTD", t:"Maximum Tolerable Downtime", d:"The maximum time period a business can survive without a particular system or process." },
+  { a:"MTU", t:"Maximum Transmission Unit", d:"The largest size packet or frame that can be sent in a network transaction." },
+  { a:"NAC", t:"Network Access Control", d:"A computer networking solution that uses a set of protocols to define and implement a policy restricting unauthorized device access." },
+  { a:"NAT", t:"Network Address Translation", d:"A method of remapping one IP address space into another by modifying network address information." },
+  { a:"NDA", t:"Non-disclosure Agreement", d:"A legal contract establishing a confidential relationship between parties." },
+  { a:"NFC", t:"Near Field Communication", d:"A short-range wireless connectivity standard enabling data exchange between devices within a few centimeters." },
+  { a:"NGFW", t:"Next-Generation Firewall", d:"A deep-packet inspection firewall that moves beyond port/protocol inspection to include application-level inspection." },
+  { a:"NIDS", t:"Network-based Intrusion Detection System", d:"An IDS that monitors network traffic for suspicious activity and alerts administrators." },
+  { a:"NIPS", t:"Network-based Intrusion Prevention System", d:"An IPS placed inline in the network to detect and block malicious traffic." },
+  { a:"NIST", t:"National Institute of Standards and Technology", d:"A US federal agency that develops technology, metrics, and standards, including cybersecurity frameworks." },
+  { a:"NTLM", t:"New Technology LAN Manager", d:"A Microsoft authentication protocol using a challenge-response mechanism; considered less secure than Kerberos." },
+  { a:"NTP", t:"Network Time Protocol", d:"A protocol for synchronizing the clocks of computers over a network." },
+  { a:"OAUTH", t:"Open Authorization", d:"An open standard for access delegation that provides secure, delegated access for websites and applications." },
+  { a:"OCSP", t:"Online Certificate Status Protocol", d:"An Internet protocol for obtaining the revocation status of an X.509 digital certificate." },
+  { a:"OFB", t:"Output Feedback", d:"A mode of operation for a block cipher that makes it act as a synchronous stream cipher." },
+  { a:"OS", t:"Operating System", d:"Software that manages computer hardware and software resources and provides services for computer programs." },
+  { a:"OT", t:"Operational Technology", d:"Hardware and software that detects or causes a change through direct monitoring and control of physical devices." },
+  { a:"OVAL", t:"Open Vulnerability and Assessment Language", d:"An international standard for machine-readable security content to describe system configurations and vulnerabilities." },
+  { a:"P2P", t:"Peer-to-Peer", d:"A distributed application architecture that partitions tasks between peers, who are equally privileged participants." },
+  { a:"PaaS", t:"Platform as a Service", d:"A cloud computing model that provides a platform allowing customers to develop, run, and manage applications." },
+  { a:"PAM", t:"Privileged Access Management", d:"Tools and processes that secure, control, and monitor privileged access to critical assets." },
+  { a:"PAP", t:"Password Authentication Protocol", d:"A simple authentication protocol in which the user's name and password are transmitted over the network unencrypted." },
+  { a:"PBX", t:"Private Branch Exchange", d:"A private telephone network used within a company that shares outside lines." },
+  { a:"PCI DSS", t:"Payment Card Industry Data Security Standard", d:"An information security standard for organizations that handle cardholder data." },
+  { a:"PDS", t:"Protected Distribution System", d:"A wireline or fiber optic system that carries unencrypted national security information through an area of lesser classification." },
+  { a:"PEAP", t:"Protected Extensible Authentication Protocol", d:"An EAP variant that encapsulates EAP within an encrypted and authenticated TLS tunnel." },
+  { a:"PED", t:"Portable Electronic Device", d:"A small, lightweight, easily transported computing device such as a smartphone or tablet." },
+  { a:"PEM", t:"Privacy Enhanced Mail", d:"A base64-encoded certificate format for X.509 certificates, commonly used with TLS/SSL." },
+  { a:"PFS", t:"Perfect Forward Secrecy", d:"A property of key agreement protocols ensuring session keys are not compromised if long-term keys are compromised." },
+  { a:"PGP", t:"Pretty Good Privacy", d:"An encryption program that provides cryptographic privacy and authentication for data communication." },
+  { a:"PHI", t:"Protected Health Information", d:"Individually identifiable health information held or transmitted by a covered entity and protected under HIPAA." },
+  { a:"PII", t:"Personally Identifiable Information", d:"Any data that could potentially identify a specific individual." },
+  { a:"PIV", t:"Personal Identity Verification", d:"A US government standard smart card for authenticating federal employees and contractors." },
+  { a:"PKI", t:"Public Key Infrastructure", d:"A set of roles, policies, hardware, software, and procedures to manage digital certificates and public-key encryption." },
+  { a:"POODLE", t:"Padding Oracle On Downgraded Legacy Encryption", d:"A security vulnerability that exploits SSL 3.0's use of the CBC block cipher, enabling decryption of secure connections." },
+  { a:"POP", t:"Post Office Protocol", d:"An application-layer Internet standard protocol used to retrieve email from a server." },
+  { a:"POTS", t:"Plain Old Telephone Service", d:"The analog voice-grade telephone service using copper wires." },
+  { a:"PPP", t:"Point-to-Point Protocol", d:"A data link layer communication protocol used to establish direct connections between two nodes." },
+  { a:"PPTP", t:"Point-to-Point Tunneling Protocol", d:"A method for implementing VPNs, now considered insecure due to known vulnerabilities." },
+  { a:"PSK", t:"Pre-Shared Key", d:"A shared secret previously established between two parties for use in cryptographic authentication." },
+  { a:"PTZ", t:"Pan-Tilt-Zoom", d:"A type of remote-controlled camera with physical movement and zoom capabilities, used in surveillance." },
+  { a:"RA", t:"Recovery Agent / Registration Authority", d:"(1) A user who can decrypt encrypted files when the original key is lost; (2) an entity that verifies certificate requests." },
+  { a:"RADIUS", t:"Remote Authentication Dial-In User Service", d:"A networking protocol providing centralized authentication, authorization, and accounting for network access." },
+  { a:"RAID", t:"Redundant Array of Independent Disks", d:"A data storage virtualization technology combining multiple physical disks for redundancy or performance." },
+  { a:"RAM", t:"Random Access Memory", d:"Volatile computer memory that stores data actively being used by the CPU." },
+  { a:"RAS", t:"Remote Access Service", d:"Any combination of hardware and software to enable remote access to tools or information that reside on a network." },
+  { a:"RAT", t:"Remote Access Trojan", d:"A type of malware that includes a backdoor for administrative control over the target computer." },
+  { a:"RBAC", t:"Role-based Access Control", d:"An access control approach where permissions are assigned to roles rather than to individual users." },
+  { a:"RC4", t:"Rivest Cipher 4", d:"A stream cipher widely used in SSL and WEP, now considered insecure." },
+  { a:"RDP", t:"Remote Desktop Protocol", d:"A proprietary Microsoft protocol that provides a user with a graphical interface to connect to another computer." },
+  { a:"RF", t:"Radio Frequency", d:"The rate of oscillation in an electromagnetic field used for wireless communications." },
+  { a:"RFID", t:"Radio Frequency Identification", d:"Technology that uses electromagnetic fields to automatically identify and track tags attached to objects." },
+  { a:"RIPEMD", t:"RACE Integrity Primitives Evaluation Message Digest", d:"A cryptographic hash function family developed as an alternative to MD5 and SHA-1." },
+  { a:"ROI", t:"Return on Investment", d:"A measure of the efficiency of an investment, calculated as net profit divided by cost." },
+  { a:"ROM", t:"Read-Only Memory", d:"A type of non-volatile storage used in computers and other electronic devices, containing permanent data." },
+  { a:"RPO", t:"Recovery Point Objective", d:"The maximum targeted period in which data might be lost from an IT service due to a major incident." },
+  { a:"RSA", t:"Rivest–Shamir–Adleman", d:"A public-key cryptosystem widely used for secure data transmission and digital signatures." },
+  { a:"RTBH", t:"Remotely Triggered Black Hole", d:"A technique for filtering out undesirable traffic by routing it to a null interface using BGP." },
+  { a:"RTO", t:"Recovery Time Objective", d:"The targeted duration of time within which a business process must be restored after a disaster." },
+  { a:"RTP", t:"Real-time Transport Protocol", d:"A network protocol for delivering audio and video over IP networks." },
+  { a:"S/MIME", t:"Secure/Multipurpose Internet Mail Extensions", d:"A standard for public-key encryption and digital signing of MIME data (email)." },
+  { a:"SaaS", t:"Software as a Service", d:"A software distribution model in which a cloud provider hosts applications and makes them available over the Internet." },
+  { a:"SABSA", t:"Sherwood Applied Business Security Architecture", d:"An enterprise security architecture framework and methodology." },
+  { a:"SAE", t:"Simultaneous Authentication of Equals", d:"A password-based authentication and key exchange protocol used in WPA3." },
+  { a:"SAML", t:"Security Assertions Markup Language", d:"An open standard for exchanging authentication and authorization data between parties, enabling SSO." },
+  { a:"SAN", t:"Storage Area Network / Subject Alternative Name", d:"(1) A specialized network for providing access to consolidated block-level storage; (2) a certificate extension allowing multiple hostnames." },
+  { a:"SCADA", t:"Supervisory Control and Data Acquisition", d:"A control system architecture for monitoring and controlling industrial processes." },
+  { a:"SCAP", t:"Security Content Automation Protocol", d:"A method for using standards to automate vulnerability management and security measurement." },
+  { a:"SCP", t:"Secure Copy Protocol", d:"A means of securely transferring computer files between a local host and a remote host using SSH." },
+  { a:"SDK", t:"Software Development Kit", d:"A set of software development tools that allows the creation of applications for a certain software package or platform." },
+  { a:"SDLC", t:"Software Development Life Cycle", d:"A framework defining tasks performed at each step in the software development process." },
+  { a:"SDWAN", t:"Software-Defined Wide Area Network", d:"A virtual WAN architecture that decouples the network hardware from its control mechanism." },
+  { a:"SED", t:"Self-Encrypting Drive", d:"A hard drive that automatically encrypts all data written to it using hardware-level encryption." },
+  { a:"SFTP", t:"Secure File Transfer Protocol / SSH File Transfer Protocol", d:"A file transfer protocol that provides file access, transfer, and management over a reliable data stream secured by SSH." },
+  { a:"SHA", t:"Secure Hash Algorithm", d:"A family of cryptographic hash functions published by NIST, including SHA-1, SHA-256, SHA-384, and SHA-512." },
+  { a:"SHTTP", t:"Secure Hypertext Transfer Protocol", d:"An obsolete alternative to HTTPS that encrypts individual HTTP messages rather than the channel." },
+  { a:"SIEM", t:"Security Information and Event Management", d:"A solution that provides real-time analysis of security alerts generated by network hardware and applications." },
+  { a:"SIM", t:"Subscriber Identity Module", d:"An integrated circuit that securely stores the IMSI and related key used to authenticate subscribers on mobile devices." },
+  { a:"SLA", t:"Service Level Agreement", d:"A commitment between a service provider and a client defining the expected level of service." },
+  { a:"SLE", t:"Single Loss Expectancy", d:"The monetary value expected to be lost in a single event affecting a specific asset; SLE = Asset Value × EF." },
+  { a:"SMB", t:"Server Message Block", d:"A network communication protocol for providing shared access to files, printers, and serial ports." },
+  { a:"SMS", t:"Short Message Service", d:"A text messaging service component of phone, web, or mobile communication systems." },
+  { a:"SMTP", t:"Simple Mail Transfer Protocol", d:"An Internet standard communication protocol for electronic mail transmission." },
+  { a:"SNMP", t:"Simple Network Management Protocol", d:"An application layer protocol used for network management and monitoring of network devices." },
+  { a:"SOAP", t:"Simple Object Access Protocol", d:"A messaging protocol specification for exchanging structured information in web services." },
+  { a:"SPF", t:"Sender Policy Framework", d:"An email authentication method designed to detect forged sender addresses in emails (anti-spoofing)." },
+  { a:"SPIM", t:"Spam over Instant Messaging", d:"Unsolicited messages sent via instant messaging systems." },
+  { a:"SQL", t:"Structured Query Language", d:"A domain-specific language used in programming for managing relational databases." },
+  { a:"SSD", t:"Solid-State Drive", d:"A solid-state storage device that uses integrated circuit assemblies to store data persistently." },
+  { a:"SSH", t:"Secure Shell", d:"A cryptographic network protocol for operating network services securely over an unsecured network." },
+  { a:"SSID", t:"Service Set Identifier", d:"A case-sensitive alphanumeric name used to identify a wireless local area network." },
+  { a:"SSL", t:"Secure Sockets Layer", d:"A deprecated cryptographic protocol for securing communications over a network, superseded by TLS." },
+  { a:"SSO", t:"Single Sign-On", d:"An authentication scheme that allows a user to log in once and gain access to multiple related systems." },
+  { a:"STIG", t:"Security Technical Implementation Guide", d:"Configuration standards developed by DISA for DoD systems to reduce the attack surface." },
+  { a:"STP", t:"Spanning Tree Protocol", d:"A network protocol that prevents loops in Ethernet networks by creating a spanning tree topology." },
+  { a:"TACACS+", t:"Terminal Access Controller Access Control System Plus", d:"A Cisco-developed AAA protocol providing separate authentication, authorization, and accounting services." },
+  { a:"TAXII", t:"Trusted Automated eXchange of Indicator Information", d:"A protocol for sharing cyber threat intelligence, typically used alongside STIX." },
+  { a:"TCP", t:"Transmission Control Protocol", d:"A connection-oriented protocol that provides reliable, ordered, and error-checked delivery of data." },
+  { a:"TGT", t:"Ticket Granting Ticket", d:"A credential used in the Kerberos protocol that authenticates a user to the ticket-granting service." },
+  { a:"TKIP", t:"Temporal Key Integrity Protocol", d:"A security protocol used in WPA to address the weaknesses of WEP by implementing per-packet key mixing." },
+  { a:"TLS", t:"Transport Layer Security", d:"A cryptographic protocol providing end-to-end security for communications over a computer network; successor to SSL." },
+  { a:"TOTP", t:"Time-based One-Time Password", d:"A one-time password algorithm that generates a code based on the current time, used in MFA." },
+  { a:"TPM", t:"Trusted Platform Module", d:"A dedicated microcontroller that secures hardware by integrating cryptographic keys into devices." },
+  { a:"TTP", t:"Tactics, Techniques, and Procedures", d:"Patterns of activities or methods associated with a specific threat actor or group." },
+  { a:"UAT", t:"User Acceptance Testing", d:"The final phase of software testing in which actual users test the software before it goes live." },
+  { a:"UDP", t:"User Datagram Protocol", d:"A connectionless communication model with minimal protocol mechanisms, offering speed over reliability." },
+  { a:"UEFI", t:"Unified Extensible Firmware Interface", d:"A modern firmware interface for PCs that replaces BIOS and supports larger drives and faster boot times." },
+  { a:"UPS", t:"Uninterruptible Power Supply", d:"A device that provides emergency power when the main power supply fails." },
+  { a:"URI", t:"Uniform Resource Identifier", d:"A string of characters that identifies a particular resource on the Internet." },
+  { a:"URL", t:"Uniform Resource Locator", d:"A reference to a web resource that specifies its location and a mechanism for retrieving it." },
+  { a:"USB", t:"Universal Serial Bus", d:"An industry standard for cables, connectors, and protocols for connection and communication between computers and devices." },
+  { a:"UTM", t:"Unified Threat Management", d:"A comprehensive security product that integrates multiple security functions in a single appliance." },
+  { a:"UTP", t:"Unshielded Twisted Pair", d:"A popular type of copper cable used in telephone and computer networks, without electromagnetic shielding." },
+  { a:"VBA", t:"Visual Basic for Applications", d:"An event-driven programming language from Microsoft, used primarily for automation in Microsoft Office." },
+  { a:"VLAN", t:"Virtual Local Area Network", d:"Any broadcast domain that is partitioned and isolated in a computer network at the data link layer." },
+  { a:"VM", t:"Virtual Machine", d:"An emulation of a computer system that provides the functionality of a physical computer." },
+  { a:"VoIP", t:"Voice over Internet Protocol", d:"A technology that allows voice communications and multimedia sessions over Internet Protocol networks." },
+  { a:"VPN", t:"Virtual Private Network", d:"A technology that creates a safe and encrypted connection over a less secure network such as the Internet." },
+  { a:"WAF", t:"Web Application Firewall", d:"A firewall that monitors, filters, and blocks HTTP traffic to and from a web application." },
+  { a:"WAN", t:"Wide Area Network", d:"A telecommunications network that extends over a large geographic area for communications." },
+  { a:"WAP", t:"Wireless Application Protocol / Wireless Access Point", d:"(1) A technical standard for accessing information over a mobile wireless network; (2) a device that creates a wireless network." },
+  { a:"WEP", t:"Wired Equivalent Privacy", d:"A deprecated security algorithm for IEEE 802.11 wireless networks, known to have serious weaknesses." },
+  { a:"WIDS", t:"Wireless Intrusion Detection System", d:"An IDS that monitors the radio spectrum for unauthorized access points and abnormal activity." },
+  { a:"WIPS", t:"Wireless Intrusion Prevention System", d:"An IPS that monitors radio spectrum and can take actions to prevent unauthorized wireless access." },
+  { a:"WPA", t:"Wi-Fi Protected Access", d:"A security certification program developed by Wi-Fi Alliance to secure wireless computer networks." },
+  { a:"WPA2", t:"Wi-Fi Protected Access 2", d:"An improvement over WPA using AES-CCMP encryption; the dominant Wi-Fi security standard." },
+  { a:"WPA3", t:"Wi-Fi Protected Access 3", d:"The third generation of Wi-Fi Protected Access, adding SAE and enhanced encryption." },
+  { a:"WPS", t:"Wi-Fi Protected Setup", d:"A network security standard to create a secure wireless home network, known for a PIN brute-force vulnerability." },
+  { a:"XSRF", t:"Cross-Site Request Forgery", d:"An attack that tricks the victim into submitting a malicious request using the victim's authenticated session." },
+  { a:"XSS", t:"Cross-Site Scripting", d:"A type of injection attack in which malicious scripts are injected into otherwise benign and trusted websites." },
+  { a:"XTACACS", t:"Extended Terminal Access Controller Access Control System", d:"An extension of TACACS developed by Cisco providing more authentication and logging features." },
+  { a:"ZTA", t:"Zero Trust Architecture", d:"A security model that requires strict verification of every person and device trying to access resources on a private network." },
+];
+
+/* Sort alphabetically */
+ACRONYMS.sort((a,b) => a.a.localeCompare(b.a));
+
+/* ═══════════════════════════════════════════
+   STORAGE — progress per acronym
+   ═══════════════════════════════════════════ */
+const STORAGE_KEY = 'secplus_progress_v1';
+let progress = {};
+function loadProgress() {
+  try { progress = JSON.parse(localStorage.getItem(STORAGE_KEY)) || {}; } catch { progress = {}; }
+}
+function saveProgress() {
+  localStorage.setItem(STORAGE_KEY, JSON.stringify(progress));
+}
+function getStatus(a) { return progress[a] || 'unseen'; } // 'known' | 'learning' | 'unseen'
+function setStatus(a, s) { progress[a] = s; saveProgress(); }
+
+loadProgress();
+
+/* ═══════════════════════════════════════════
+   STATE
+   ═══════════════════════════════════════════ */
+let currentView = 'browse';
+let searchQuery = '';
+let browseFilter = 'all';
+
+// Flashcard state
+let fcDeck = [];
+let fcIndex = 0;
+let fcFlipped = false;
+let fcHideKnown = false;
+let fcFrontSide = 'acronym'; // 'acronym' | 'definition'
+
+// Quiz state
+let quizQuestions = [];
+let quizIndex = 0;
+let quizCorrect = 0;
+let quizWrong = 0;
+let quizOptions = { qtype: 'mc', qdir: 'acronym-to-def', qcount: '25', pool: 'all' };
+let quizAnswered = false;
+let lastQuizOptions = null;
+
+/* ═══════════════════════════════════════════
+   UTILS
+   ═══════════════════════════════════════════ */
+function shuffle(arr) {
+  const a = [...arr];
+  for (let i = a.length - 1; i > 0; i--) {
+    const j = Math.floor(Math.random() * (i+1));
+    [a[i], a[j]] = [a[j], a[i]];
+  }
+  return a;
+}
+function statusEmoji(s) {
+  if (s === 'known') return '✅';
+  if (s === 'learning') return '🔄';
+  return '⬜';
+}
+
+/* ═══════════════════════════════════════════
+   VIEW SWITCHING
+   ═══════════════════════════════════════════ */
+document.querySelectorAll('.tab-btn').forEach(btn => {
+  btn.addEventListener('click', () => {
+    const v = btn.dataset.view;
+    document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+    btn.classList.add('active');
+    document.querySelectorAll('.view').forEach(s => s.classList.remove('active'));
+    document.getElementById('view-' + v).classList.add('active');
+    currentView = v;
+    if (v === 'flashcard') renderFC();
+    if (v === 'quiz') showQuizSetup();
+  });
+});
+
+/* ═══════════════════════════════════════════
+   SEARCH
+   ═══════════════════════════════════════════ */
+const searchInput = document.getElementById('search-input');
+searchInput.addEventListener('input', () => {
+  searchQuery = searchInput.value.trim().toLowerCase();
+  if (currentView === 'browse') renderBrowse();
+});
+
+/* ═══════════════════════════════════════════
+   BROWSE VIEW
+   ═══════════════════════════════════════════ */
+document.querySelectorAll('.filter-btn').forEach(btn => {
+  btn.addEventListener('click', () => {
+    document.querySelectorAll('.filter-btn').forEach(b => b.classList.remove('active'));
+    btn.classList.add('active');
+    browseFilter = btn.dataset.filter;
+    renderBrowse();
+  });
+});
+
+function renderBrowse() {
+  const grid = document.getElementById('acronym-grid');
+  const noRes = document.getElementById('no-results');
+  const countBadge = document.getElementById('browse-count');
+
+  let list = ACRONYMS.filter(item => {
+    if (browseFilter === 'known') return getStatus(item.a) === 'known';
+    if (browseFilter === 'learning') return getStatus(item.a) === 'learning';
+    if (browseFilter === 'unseen') return getStatus(item.a) === 'unseen';
+    return true;
+  });
+
+  if (searchQuery) {
+    list = list.filter(item =>
+      item.a.toLowerCase().includes(searchQuery) ||
+      item.t.toLowerCase().includes(searchQuery) ||
+      item.d.toLowerCase().includes(searchQuery)
+    );
+  }
+
+  countBadge.textContent = `${list.length} of ${ACRONYMS.length}`;
+
+  if (list.length === 0) {
+    grid.style.display = 'none';
+    noRes.style.display = 'block';
+    return;
+  }
+  grid.style.display = '';
+  noRes.style.display = 'none';
+
+  grid.innerHTML = list.map(item => {
+    const s = getStatus(item.a);
+    return `<div class="acronym-card">
+      <div class="card-top">
+        <span class="acronym-label">${item.a}</span>
+        <div class="card-actions">
+          <button class="status-btn" title="Mark Known" onclick="toggleStatus('${item.a}','known')" aria-label="Mark known">✅</button>
+          <button class="status-btn" title="Mark Learning" onclick="toggleStatus('${item.a}','learning')" aria-label="Mark learning">🔄</button>
+        </div>
+      </div>
+      <div class="full-term">${item.t}</div>
+      <div class="definition">${item.d}</div>
+      ${s !== 'unseen' ? `<span class="status-tag ${s}">${statusEmoji(s)} ${s.charAt(0).toUpperCase()+s.slice(1)}</span>` : ''}
+    </div>`;
+  }).join('');
+}
+
+function toggleStatus(acronym, newStatus) {
+  const current = getStatus(acronym);
+  setStatus(acronym, current === newStatus ? 'unseen' : newStatus);
+  renderBrowse();
+  if (currentView === 'flashcard') renderFCCard();
+}
+
+/* ═══════════════════════════════════════════
+   FLASHCARD VIEW
+   ═══════════════════════════════════════════ */
+function buildFCDeck() {
+  let pool = [...ACRONYMS];
+  if (fcHideKnown) pool = pool.filter(x => getStatus(x.a) !== 'known');
+  if (searchQuery) pool = pool.filter(item =>
+    item.a.toLowerCase().includes(searchQuery) ||
+    item.t.toLowerCase().includes(searchQuery)
+  );
+  fcDeck = shuffle(pool);
+  fcIndex = 0;
+}
+
+function renderFC() {
+  if (fcDeck.length === 0) buildFCDeck();
+  renderFCCard();
+}
+
+function renderFCCard() {
+  if (fcDeck.length === 0) {
+    document.getElementById('fc-front-content').innerHTML = '<div class="fc-acronym-big">—</div><div class="fc-hint">No cards in deck</div>';
+    document.getElementById('fc-back-content').innerHTML = '';
+    document.getElementById('fc-counter').textContent = '0 / 0';
+    document.getElementById('fc-progress').textContent = '';
+    return;
+  }
+  const item = fcDeck[fcIndex];
+  const s = getStatus(item.a);
+  const statusHtml = s !== 'unseen' ? `<div class="fc-status-indicator">${statusEmoji(s)} ${s.charAt(0).toUpperCase()+s.slice(1)}</div>` : '<div class="fc-status-indicator"></div>';
+
+  if (fcFrontSide === 'acronym') {
+    // Front: acronym only. Back: full term + definition.
+    document.getElementById('fc-front-content').innerHTML =
+      `<div class="fc-acronym-big">${item.a}</div><div class="fc-hint">tap to reveal full term</div>`;
+    document.getElementById('fc-back-content').innerHTML =
+      `<div class="fc-fullterm">${item.t}</div><div class="fc-def">${item.d}</div>${statusHtml}`;
+  } else {
+    // Front: definition only. Back: acronym + full term.
+    document.getElementById('fc-front-content').innerHTML =
+      `<div class="fc-def" style="font-size:clamp(.8rem,2.8vw,1rem);color:var(--text)">${item.d}</div><div class="fc-hint" style="margin-top:.6rem">tap to reveal acronym</div>`;
+    document.getElementById('fc-back-content').innerHTML =
+      `<div class="fc-acronym-big" style="color:var(--green)">${item.a}</div><div class="fc-fullterm">${item.t}</div>${statusHtml}`;
+  }
+
+  document.getElementById('fc-counter').textContent = `${fcIndex + 1} / ${fcDeck.length}`;
+  renderFCProgress();
+
+  // Unflip on new card
+  fcFlipped = false;
+  document.getElementById('fc-inner').classList.remove('flipped');
+}
+
+
+function renderFCProgress() {
+  const known = fcDeck.filter(x => getStatus(x.a) === 'known').length;
+  const learning = fcDeck.filter(x => getStatus(x.a) === 'learning').length;
+  document.getElementById('fc-progress').textContent = `✅ ${known}  🔄 ${learning}  ⬜ ${fcDeck.length - known - learning}`;
+}
+
+// Flip
+function flipCard() {
+  fcFlipped = !fcFlipped;
+  document.getElementById('fc-inner').classList.toggle('flipped', fcFlipped);
+}
+document.getElementById('fc-scene').addEventListener('click', flipCard);
+document.getElementById('fc-scene').addEventListener('keydown', e => {
+  if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); flipCard(); }
+});
+
+// Nav
+document.getElementById('fc-prev').addEventListener('click', () => {
+  if (fcDeck.length === 0) return;
+  fcIndex = (fcIndex - 1 + fcDeck.length) % fcDeck.length;
+  renderFCCard();
+});
+document.getElementById('fc-next').addEventListener('click', () => {
+  if (fcDeck.length === 0) return;
+  fcIndex = (fcIndex + 1) % fcDeck.length;
+  renderFCCard();
+});
+
+// Keyboard nav
+document.addEventListener('keydown', e => {
+  if (currentView !== 'flashcard') return;
+  if (e.target.tagName === 'INPUT') return;
+  if (e.key === 'ArrowRight') document.getElementById('fc-next').click();
+  if (e.key === 'ArrowLeft') document.getElementById('fc-prev').click();
+  if (e.key === ' ') { e.preventDefault(); flipCard(); }
+});
+
+// Controls
+document.getElementById('fc-shuffle-btn').addEventListener('click', () => {
+  buildFCDeck();
+  renderFCCard();
+});
+document.getElementById('fc-filter-known').addEventListener('click', function() {
+  fcHideKnown = !fcHideKnown;
+  this.textContent = fcHideKnown ? 'Show Known' : 'Hide Known';
+  buildFCDeck();
+  renderFCCard();
+});
+document.getElementById('fc-side-btn').addEventListener('click', function() {
+  fcFrontSide = fcFrontSide === 'acronym' ? 'definition' : 'acronym';
+  this.textContent = fcFrontSide === 'acronym' ? '🔁 Acronym first' : '🔁 Definition first';
+  renderFCCard();
+});
+document.getElementById('fc-reset-btn').addEventListener('click', () => {
+  buildFCDeck();
+  renderFCCard();
+});
+
+// Mark buttons
+document.getElementById('fc-mark-known').addEventListener('click', () => {
+  if (!fcDeck[fcIndex]) return;
+  const a = fcDeck[fcIndex].a;
+  setStatus(a, getStatus(a) === 'known' ? 'unseen' : 'known');
+  renderFCCard();
+});
+document.getElementById('fc-mark-learning').addEventListener('click', () => {
+  if (!fcDeck[fcIndex]) return;
+  const a = fcDeck[fcIndex].a;
+  setStatus(a, getStatus(a) === 'learning' ? 'unseen' : 'learning');
+  renderFCCard();
+});
+
+/* ═══════════════════════════════════════════
+   QUIZ VIEW
+   ═══════════════════════════════════════════ */
+// Option buttons
+document.querySelectorAll('.opt-btn').forEach(btn => {
+  btn.addEventListener('click', () => {
+    const opt = btn.dataset.opt;
+    document.querySelectorAll(`.opt-btn[data-opt="${opt}"]`).forEach(b => b.classList.remove('sel'));
+    btn.classList.add('sel');
+    quizOptions[opt] = btn.dataset.val;
+  });
+});
+
+function showQuizSetup() {
+  document.getElementById('quiz-setup-panel').style.display = '';
+  document.getElementById('quiz-active-panel').style.display = 'none';
+  document.getElementById('quiz-result-panel').style.display = 'none';
+}
+
+document.getElementById('start-quiz-btn').addEventListener('click', startQuiz);
+
+function startQuiz() {
+  lastQuizOptions = { ...quizOptions };
+  let pool = quizOptions.pool === 'learning'
+    ? ACRONYMS.filter(x => getStatus(x.a) === 'learning')
+    : [...ACRONYMS];
+
+  if (pool.length < 4) {
+    alert('Not enough acronyms in the selected pool (need at least 4). Mark some as "Learning" first.');
+    return;
+  }
+
+  const shuffled = shuffle(pool);
+  const n = quizOptions.qcount === 'all' ? shuffled.length : Math.min(parseInt(quizOptions.qcount), shuffled.length);
+  quizQuestions = shuffled.slice(0, n);
+  quizIndex = 0;
+  quizCorrect = 0;
+  quizWrong = 0;
+  quizAnswered = false;
+
+  document.getElementById('quiz-setup-panel').style.display = 'none';
+  document.getElementById('quiz-result-panel').style.display = 'none';
+  document.getElementById('quiz-active-panel').style.display = '';
+  renderQuizQuestion();
+}
+
+function renderQuizQuestion() {
+  quizAnswered = false;
+  const item = quizQuestions[quizIndex];
+  const dir = lastQuizOptions.qdir; // 'acronym-to-def' | 'def-to-acronym'
+
+  document.getElementById('quiz-progress-label').textContent = `Question ${quizIndex + 1} / ${quizQuestions.length}`;
+  document.getElementById('quiz-correct-count').textContent = `✅ ${quizCorrect}`;
+  document.getElementById('quiz-wrong-count').textContent = `❌ ${quizWrong}`;
+  document.getElementById('quiz-next-row').style.display = 'none';
+
+  const qqEl = document.getElementById('quiz-question');
+  // Reset styles each render
+  qqEl.style.fontSize = '';
+  qqEl.style.letterSpacing = '';
+  qqEl.style.color = '';
+
+  if (dir === 'acronym-to-def') {
+    // Show the acronym — user must identify the correct definition
+    qqEl.textContent = item.a;
+    document.getElementById('quiz-subtext').textContent = 'Which definition matches this acronym?';
+  } else {
+    // Show the definition — user must identify the correct acronym
+    qqEl.textContent = item.d;
+    qqEl.style.fontSize = 'clamp(.85rem,2.5vw,1.05rem)';
+    qqEl.style.letterSpacing = '0';
+    qqEl.style.color = 'var(--text)';
+    document.getElementById('quiz-subtext').textContent = 'Which acronym matches this definition?';
+  }
+
+  if (lastQuizOptions.qtype === 'mc') {
+    renderMC(item, dir);
+  } else {
+    renderType(item, dir);
+  }
+}
+
+function renderMC(item, dir) {
+  document.getElementById('mc-choices').style.display = '';
+  document.getElementById('type-wrap').style.display = 'none';
+
+  const distractors = shuffle(ACRONYMS.filter(x => x.a !== item.a)).slice(0, 3);
+  const choices = shuffle([item, ...distractors]);
+
+  if (dir === 'acronym-to-def') {
+    // Choices show definitions — pick the one that matches the displayed acronym
+    document.getElementById('mc-choices').innerHTML = choices.map((c, i) =>
+      `<button class="choice-btn" data-idx="${i}" data-correct="${c.a === item.a}"
+         onclick="handleMCClick(this)">
+         ${c.d}
+       </button>`
+    ).join('');
+  } else {
+    // Choices show acronyms only — full term revealed after answering
+    document.getElementById('mc-choices').innerHTML = choices.map((c, i) =>
+      `<button class="choice-btn" data-idx="${i}" data-correct="${c.a === item.a}"
+         data-fullterm="${c.t.replace(/"/g,'&quot;')}"
+         onclick="handleMCClick(this)">
+         <strong>${c.a}</strong>
+       </button>`
+    ).join('');
+  }
+}
+
+function handleMCClick(btn) {
+  if (quizAnswered) return;
+  quizAnswered = true;
+  const isCorrect = btn.dataset.correct === 'true';
+  const item = quizQuestions[quizIndex];
+  const dir = lastQuizOptions.qdir;
+
+  document.querySelectorAll('.choice-btn').forEach(b => {
+    b.disabled = true;
+    if (b.dataset.correct === 'true') b.classList.add('correct');
+    // def-to-acronym: expand every choice to show full term after answering
+    if (dir === 'def-to-acronym' && b.dataset.fullterm) {
+      const acronym = b.querySelector('strong').textContent;
+      b.innerHTML = `<strong>${acronym}</strong> — ${b.dataset.fullterm}`;
+    }
+  });
+  if (!isCorrect) {
+    btn.classList.add('wrong');
+    quizWrong++;
+  } else {
+    quizCorrect++;
+  }
+
+  // acronym-to-def: replace the displayed acronym heading with the full term
+  if (dir === 'acronym-to-def') {
+    const qqEl = document.getElementById('quiz-question');
+    qqEl.style.fontSize = 'clamp(.9rem,2.8vw,1.2rem)';
+    qqEl.style.letterSpacing = '0';
+    qqEl.style.color = 'var(--green)';
+    qqEl.textContent = item.t;
+  }
+
+  document.getElementById('quiz-correct-count').textContent = `✅ ${quizCorrect}`;
+  document.getElementById('quiz-wrong-count').textContent = `❌ ${quizWrong}`;
+  document.getElementById('quiz-next-row').style.display = '';
+}
+
+function renderType(item, dir) {
+  document.getElementById('mc-choices').style.display = 'none';
+  document.getElementById('type-wrap').style.display = '';
+  const input = document.getElementById('type-answer');
+  input.value = '';
+  input.disabled = false;
+  input.placeholder = dir === 'acronym-to-def' ? 'Type the definition…' : 'Type the acronym…';
+  input.focus();
+  const fb = document.getElementById('type-feedback');
+  fb.className = 'type-feedback';
+  fb.textContent = '';
+  document.getElementById('type-submit-btn').disabled = false;
+}
+
+function handleTypeSubmit() {
+  if (quizAnswered) return;
+  const item = quizQuestions[quizIndex];
+  const dir = lastQuizOptions.qdir;
+  const input = document.getElementById('type-answer');
+  const val = input.value.trim().toLowerCase();
+  if (!val) return;
+  quizAnswered = true;
+  input.disabled = true;
+  document.getElementById('type-submit-btn').disabled = true;
+
+  let isCorrect = false;
+  let feedbackCorrect = '';
+  let feedbackWrong = '';
+
+  if (dir === 'acronym-to-def') {
+    // Typed answer should match the definition
+    const correctDef = item.d.toLowerCase();
+    // Fuzzy: first 5 words of definition must appear in answer, or answer is very close
+    const defWords = item.d.split(' ').slice(0, 5).join(' ').toLowerCase();
+    isCorrect = val === correctDef
+      || (val.length >= 8 && correctDef.includes(val))
+      || (val.length >= 10 && val.includes(defWords.split(' ').slice(0, 3).join(' ')));
+    feedbackCorrect = `✅ Correct! Definition: "${item.d}"`;
+    feedbackWrong = `❌ ${item.a} = "${item.t}" — ${item.d}`;
+  } else {
+    // Typed answer should match the acronym
+    const correctAcronym = item.a.toLowerCase();
+    isCorrect = val === correctAcronym;
+    feedbackCorrect = `✅ Correct! ${item.a} = ${item.t}`;
+    feedbackWrong = `❌ Answer: ${item.a} (${item.t})`;
+  }
+
+  const fb = document.getElementById('type-feedback');
+  fb.classList.add('show');
+  if (isCorrect) {
+    fb.classList.add('correct');
+    fb.textContent = feedbackCorrect;
+    quizCorrect++;
+  } else {
+    fb.classList.add('wrong');
+    fb.textContent = feedbackWrong;
+    quizWrong++;
+  }
+  // Reveal full term in the question heading after answering
+  const qqEl = document.getElementById('quiz-question');
+  if (dir === 'acronym-to-def') {
+    qqEl.style.fontSize = 'clamp(.9rem,2.8vw,1.2rem)';
+    qqEl.style.letterSpacing = '0';
+    qqEl.style.color = 'var(--green)';
+    qqEl.textContent = item.t;
+  } else {
+    qqEl.style.fontSize = 'clamp(.9rem,2.8vw,1.2rem)';
+    qqEl.style.letterSpacing = '0';
+    qqEl.style.color = isCorrect ? 'var(--green)' : 'var(--red)';
+    qqEl.textContent = `${item.a} — ${item.t}`;
+  }
+
+  document.getElementById('quiz-correct-count').textContent = `✅ ${quizCorrect}`;
+  document.getElementById('quiz-wrong-count').textContent = `❌ ${quizWrong}`;
+  document.getElementById('quiz-next-row').style.display = '';
+}
+
+document.getElementById('type-submit-btn').addEventListener('click', handleTypeSubmit);
+document.getElementById('type-answer')?.addEventListener('keydown', e => {
+  if (e.key === 'Enter') handleTypeSubmit();
+});
+
+function advanceQuiz() {
+  quizIndex++;
+  if (quizIndex >= quizQuestions.length) {
+    showQuizResult();
+  } else {
+    renderQuizQuestion();
+  }
+}
+document.getElementById('quiz-next-btn').addEventListener('click', advanceQuiz);
+
+function showQuizResult() {
+  document.getElementById('quiz-active-panel').style.display = 'none';
+  document.getElementById('quiz-result-panel').style.display = '';
+  const total = quizCorrect + quizWrong;
+  const pct = total > 0 ? Math.round((quizCorrect / total) * 100) : 0;
+  let emoji = pct >= 90 ? '🏆' : pct >= 70 ? '🎯' : pct >= 50 ? '📚' : '💪';
+  document.getElementById('result-emoji').textContent = emoji;
+  document.getElementById('result-score').textContent = `${quizCorrect} / ${total} (${pct}%)`;
+  document.getElementById('result-sub').textContent =
+    pct >= 90 ? 'Outstanding! You really know your acronyms.' :
+    pct >= 70 ? 'Great job — a bit more practice and you\'ll nail the exam.' :
+    pct >= 50 ? 'Good effort! Review the ones you missed in Browse mode.' :
+    'Keep studying — you\'ve got this! Use flashcards to drill the tricky ones.';
+}
+
+document.getElementById('retry-same-btn').addEventListener('click', startQuiz);
+document.getElementById('quiz-home-btn').addEventListener('click', showQuizSetup);
+document.getElementById('quiz-quit-btn').addEventListener('click', showQuizSetup);
+
+/* ═══════════════════════════════════════════
+   INIT
+   ═══════════════════════════════════════════ */
+renderBrowse();
+buildFCDeck();
+</script>
+</body>
+</html>

@@ -1,0 +1,18 @@
+# Secrets — never commit
+.env
+*.env
+core/.env
+lab/.env
+
+# Keys and certs
+*.key
+*.pem
+*.crt
+security/wireguard/*.conf
+
+# Docker/runtime artifacts we don't want tracked
+**/data/
+**/*.log
+
+# OS junk
+.DS_Store
