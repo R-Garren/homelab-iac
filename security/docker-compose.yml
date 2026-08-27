@@ -1,0 +1,44 @@
+# ══════════════════════════════════════════════════════════════════════════════
+# Home Lab — Security Stack
+# Server:   ubuntu-server@192.168.1.10
+# Location: /opt/homelab/security/docker-compose.yml
+#
+# Services: WireGuard VPN
+#
+# Usage:
+#   cd /opt/homelab/security
+#   sudo docker compose up -d          # Start
+#   sudo docker compose logs -f        # Watch logs
+#   sudo docker compose down           # Stop (does NOT destroy keys/config)
+#
+# Note: WireGuard config and keys live in ./wireguard/ and are gitignored.
+#       IP forwarding is set persistently via /etc/sysctl.d/99-wireguard.conf.
+# ══════════════════════════════════════════════════════════════════════════════
+name: homelab-security
+
+services:
+  # ─────────────────────────────────────────────────────────────────────────
+  # WIREGUARD — VPN Server
+  # network_mode: host is required — PostUp/PostDown rules reference enp5s0
+  # (the host's physical NIC) and must run in the host network namespace.
+  # VPN subnet: 10.10.0.1/24  |  Listen port: UDP 51820
+  # ─────────────────────────────────────────────────────────────────────────
+  wireguard:
+    image: lscr.io/linuxserver/wireguard:latest
+    container_name: wireguard
+    cap_add:
+      - NET_ADMIN
+    environment:
+      PUID: "1000"
+      PGID: "1000"
+      TZ: "America/New_York"
+    volumes:
+      - ./wireguard/wg0.conf:/config/wg_confs/wg0.conf:ro
+      - /lib/modules:/lib/modules:ro
+    network_mode: host
+    restart: unless-stopped
+    logging:
+      driver: "json-file"
+      options:
+        max-size: "5m"
+        max-file: "3"
