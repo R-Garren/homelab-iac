@@ -16,3 +16,10 @@ security/wireguard/*.conf
 
 # OS junk
 .DS_Store
+siem/wazuh-docker/single-node/config/wazuh_indexer_ssl_certs/
+
+# Wazuh upstream files — not part of our deployment
+siem/wazuh-docker/.github/
+siem/wazuh-docker/build-docker-images/
+siem/wazuh-docker/multi-node/
+siem/wazuh-docker/docs/
