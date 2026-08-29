@@ -1,0 +1,33 @@
+<!-- Pi-hole / dnsmasq decoders -->
+<!-- pihole.log lines carry no syslog hostname field:
+       "Aug 29 10:14:17 dnsmasq[52]: gravity blocked ..."
+     Wazuh's pre-decoder consumes "dnsmasq[52]:" as the hostname and never
+     extracts a program_name. Empirically (wazuh-logtest, 2026-08-29) the
+     string the decoder matches against STILL carries that prefix, so no
+     pattern here may anchor with ^. Testing a decoder against a bare message
+     body will falsely appear to pass - always test full log lines. -->
+
+<decoder name="pihole">
+  <prematch type="pcre2">(?:gravity blocked|query\[|forwarded|reply|cached|config|special domain)</prematch>
+</decoder>
+
+<decoder name="pihole-blocked">
+  <parent>pihole</parent>
+  <prematch type="pcre2">gravity blocked </prematch>
+  <regex type="pcre2">gravity blocked (\S+) is (\S+)</regex>
+  <order>dns_query_name, dns_answer</order>
+</decoder>
+
+<decoder name="pihole-query">
+  <parent>pihole</parent>
+  <prematch type="pcre2">query\[</prematch>
+  <regex type="pcre2">query\[(\w+)\] (\S+) from (\S+)</regex>
+  <order>dns_query_type, dns_query_name, srcip</order>
+</decoder>
+
+<decoder name="pihole-nxdomain">
+  <parent>pihole</parent>
+  <prematch type="pcre2">config \S+ is NXDOMAIN</prematch>
+  <regex type="pcre2">config (\S+) is NXDOMAIN</regex>
+  <order>dns_query_name</order>
+</decoder>
